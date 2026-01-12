@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBizTracker - Business Management App</title>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
+                    </svg>
+                    <span>MyBizTracker</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#" data-tab="dashboard" class="nav-item active"><span class="icon">📊</span> Dashboard</a></li>
+                    <li><a href="#" data-tab="inventory" class="nav-item"><span class="icon">📦</span> Inventory</a></li>
+                    <li><a href="#" data-tab="expenses" class="nav-item"><span class="icon">💰</span> Expenses</a></li>
+                    <li><a href="#" data-tab="sales" class="nav-item"><span class="icon">🛒</span> Sales</a></li>
+                    <li><a href="#" data-tab="reports" class="nav-item"><span class="icon">📈</span> Reports</a></li>
+                    <li><a href="#" data-tab="reminders" class="nav-item"><span class="icon">🔔</span> Reminders</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle">🌙</button>
+                <button id="settingsBtn" class="settings-btn">⚙️</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1>MyBizTracker</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search..." id="searchInput">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-pane active">
+                    <div class="dashboard-grid">
+                        <div class="card stat-card">
+                            <div class="stat-header">
+                                <h3>Total Revenue</h3>
+                                <span class="icon-small">💵</span>
+                            </div>
+                            <p class="stat-value" id="totalRevenue">$0</p>
+                            <p class="stat-change positive">+0% from last month</p>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-header">
+                                <h3>Total Expenses</h3>
+                                <span class="icon-small">📉</span>
+                            </div>
+                            <p class="stat-value" id="totalExpenses">$0</p>
+                            <p class="stat-change positive">+0% from last month</p>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-header">
+                                <h3>Net Profit</h3>
+                                <span class="icon-small">📊</span>
+                            </div>
+                            <p class="stat-value" id="netProfit">$0</p>
+                            <p class="stat-change positive">+0% from last month</p>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-header">
+                                <h3>Total Items</h3>
+                                <span class="icon-small">📦</span>
+                            </div>
+                            <p class="stat-value" id="totalItems">0</p>
+                            <p class="stat-subtext">In Inventory</p>
+                        </div>
+                    </div>
+                    <div class="recent-section">
+                        <h2>Recent Transactions</h2>
+                        <div id="recentTransactions" class="transactions-list"></div>
+                    </div>
+                </div>
+
+                <!-- Inventory Tab -->
+                <div id="inventory" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Inventory Management</h2>
+                        <button class="btn btn-primary" id="addItemBtn">+ Add Item</button>
+                    </div>
+                    <div class="card">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>SKU</th>
+                                    <th>Stock Level</th>
+                                    <th>Min Stock</th>
+                                    <th>Unit Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable"></tbody>
+                        </table>
+                    </div>
+                    <!-- Add Item Modal -->
+                    <div id="addItemModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="closeAddItem">&times;</span>
+                            <h2>Add New Item</h2>
+                            <form id="addItemForm">
+                                <div class="form-group">
+                                    <label>Item Name *</label>
+                                    <input type="text" id="itemName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>SKU *</label>
+                                    <input type="text" id="itemSKU" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Initial Stock *</label>
+                                        <input type="number" id="itemStock" required min="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Min Stock Alert *</label>
+                                        <input type="number" id="itemMinStock" required min="0">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Unit Price *</label>
+                                    <input type="number" id="itemPrice" required min="0" step="0.01">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Add Item</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses Tab -->
+                <div id="expenses" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Expense & Income Tracking</h2>
+                        <button class="btn btn-primary" id="addExpenseBtn">+ Add Expense</button>
+                    </div>
+                    <div class="card">
+                        <table class="expenses-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesTable"></tbody>
+                        </table>
+                    </div>
+                    <!-- Add Expense Modal -->
+                    <div id="addExpenseModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="closeAddExpense">&times;</span>
+                            <h2>Add Expense/Income</h2>
+                            <form id="addExpenseForm">
+                                <div class="form-group">
+                                    <label>Description *</label>
+                                    <input type="text" id="expenseDesc" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Type *</label>
+                                        <select id="expenseType" required>
+                                            <option value="expense">Expense</option>
+                                            <option value="income">Income</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category *</label>
+                                        <select id="expenseCategory" required>
+                                            <option value="rent">Rent</option>
+                                            <option value="supplies">Supplies</option>
+                                            <option value="wages">Wages</option>
+                                            <option value="utilities">Utilities</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Amount *</label>
+                                    <input type="number" id="expenseAmount" required min="0" step="0.01">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Add Entry</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Tab -->
+                <div id="sales" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Sales Recording</h2>
+                        <button class="btn btn-primary" id="addSaleBtn">+ Record Sale</button>
+                    </div>
+                    <div class="card">
+                        <table class="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>Items</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTable"></tbody>
+                        </table>
+                    </div>
+                    <!-- Add Sale Modal -->
+                    <div id="addSaleModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="closeAddSale">&times;</span>
+                            <h2>Record Sale</h2>
+                            <form id="addSaleForm">
+                                <div class="form-group">
+                                    <label>Customer Name</label>
+                                    <input type="text" id="customerName">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Payment Method *</label>
+                                        <select id="paymentMethod" required>
+                                            <option value="cash">Cash</option>
+                                            <option value="ewallet">eWallet</option>
+                                            <option value="credit">Credit</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Amount *</label>
+                                        <input type="number" id="saleAmount" required min="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Items Sold</label>
+                                    <input type="text" id="saleItems" placeholder="e.g., Item 1 x2, Item 2 x1">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Record Sale</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div id="reports" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Reports & Insights</h2>
+                    </div>
+                    <div class="report-filters">
+                        <select id="reportPeriod">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Profit Trend</h3>
+                            <div id="profitChart" class="chart-placeholder">Chart will be displayed here</div>
+                        </div>
+                        <div class="card">
+                            <h3>Top Products</h3>
+                            <div id="topProducts" class="report-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reminders Tab -->
+                <div id="reminders" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Reminders & Notifications</h2>
+                    </div>
+                    <div class="reminders-grid">
+                        <div class="card reminder-card">
+                            <h3>Low Stock Items</h3>
+                            <div id="lowStockReminders" class="reminder-list"></div>
+                        </div>
+                        <div class="card reminder-card">
+                            <h3>Spending Insights</h3>
+                            <div id="spendingInsights" class="reminder-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="storage.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
