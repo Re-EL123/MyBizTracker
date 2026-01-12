@@ -1,220 +1,280 @@
-// MyBizTracker - Vanilla JavaScript with Lucide Icons (No React JSX needed)
-const React = window.React;
-const ReactDOM = window.ReactDOM;
-
-// Storage Manager Class
-class StorageManager {
-  constructor() {
-    this.initializeStorage();
-  }
-
-  initializeStorage() {
-    const defaultData = {
-      inventory: [],
-      expenses: [],
-      sales: [],
-      settings: { currency: '$', theme: 'light', language: 'en' }
-    };
-    if (!localStorage.getItem('myBizTrackerData')) {
-      localStorage.setItem('myBizTrackerData', JSON.stringify(defaultData));
-    }
-  }
-
-  getData() {
-    return JSON.parse(localStorage.getItem('myBizTrackerData') || '{}');
-  }
-
-  saveData(data) {
-    localStorage.setItem('myBizTrackerData', JSON.stringify(data));
-  }
-
-  addInventoryItem(item) {
-    const data = this.getData();
-    item.id = Date.now().toString();
-    item.dateAdded = new Date().toISOString();
-    data.inventory.push(item);
-    this.saveData(data);
-    return item;
-  }
-
-  getInventoryItems() {
-    const data = this.getData();
-    return data.inventory || [];
-  }
-
-  deleteInventoryItem(id) {
-    const data = this.getData();
-    data.inventory = data.inventory.filter(item => item.id !== id);
-    this.saveData(data);
-  }
-
-  addExpense(expense) {
-    const data = this.getData();
-    expense.id = Date.now().toString();
-    expense.date = expense.date || new Date().toISOString();
-    data.expenses.push(expense);
-    this.saveData(data);
-    return expense;
-  }
-
-  getExpenses(filterType = null) {
-    const data = this.getData();
-    let expenses = data.expenses || [];
-    if (filterType) expenses = expenses.filter(exp => exp.type === filterType);
-    return expenses;
-  }
-
-  deleteExpense(id) {
-    const data = this.getData();
-    data.expenses = data.expenses.filter(exp => exp.id !== id);
-    this.saveData(data);
-  }
-
-  addSale(sale) {
-    const data = this.getData();
-    sale.id = Date.now().toString();
-    sale.date = sale.date || new Date().toISOString();
-    data.sales.push(sale);
-    this.saveData(data);
-    return sale;
-  }
-
-  getSales() {
-    const data = this.getData();
-    return data.sales || [];
-  }
-
-  deleteSale(id) {
-    const data = this.getData();
-    data.sales = data.sales.filter(sale => sale.id !== id);
-    this.saveData(data);
-  }
-
-  getTotalRevenue() {
-    const sales = this.getSales();
-    return sales.reduce((total, sale) => total + parseFloat(sale.amount || 0), 0);
-  }
-
-  getTotalExpenses() {
-    const expenses = this.getExpenses('expense');
-    return expenses.reduce((total, exp) => total + parseFloat(exp.amount || 0), 0);
-  }
-
-  getNetProfit() {
-    return this.getTotalRevenue() - this.getTotalExpenses();
-  }
-
-  getLowStockItems() {
-    const inventory = this.getInventoryItems();
-    return inventory.filter(item => item.stock <= item.minStock);
-  }
-}
-
+// MyBizTracker - Complete Application Logic
 const storage = new StorageManager();
 
-// Utility function to create Lucide icons
-function createIcon(iconName) {
-  const root = document.createElement('div');
-  root.innerHTML = `<svg class="lucide-icon" width="20" height="20"></svg>`;
-  
-  // Map icon names to Lucide icon representations
-  const icons = {
-    'Dashboard': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
-    'Inventory': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 2v4M15 2v4M6 8h12"></path></svg>',
-    'Expenses': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>',
-    'Sales': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>',
-    'Reports': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="3" x2="3" y2="21"></line><line x1="21" y1="21" x2="3" y2="21"></line><polyline points="3 18 5 16 7 18 9 14 11 18 13 13 15 18 17 14 19 18 21 16"></polyline></svg>',
-    'Reminders': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>',
-    'Menu': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>',
-    'Moon': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>',
-    'Sun': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
-    'Plus': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
-    'Trash': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>',
-    'Settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m4.24-4.24l4.24-4.24"></path></svg>'
-  };
-  
-  if (icons[iconName]) {
-    root.innerHTML = icons[iconName];
-  }
-  return root.firstChild;
+// Initialize app on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
 
-// Initialize App
-function initApp() {
-  renderApp();
-  attachEventListeners();
+function init() {
+  setupEventListeners();
+  refreshDashboard();
 }
 
-function renderApp() {
-  const root = document.getElementById('root');
-  const metrics = {
-    revenue: storage.getTotalRevenue(),
-    expenses: storage.getTotalExpenses(),
-    profit: storage.getNetProfit(),
-    items: storage.getInventoryItems().length
-  };
-
-  root.innerHTML = `
-    <div class="app-container">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <span>MyBizTracker</span>
-          </div>
-        </div>
-        <nav class="nav-menu">
-          <ul>
-            <li><a href="#" data-tab="dashboard" class="nav-item active">Dashboard</a></li>
-            <li><a href="#" data-tab="inventory" class="nav-item">Inventory</a></li>
-            <li><a href="#" data-tab="expenses" class="nav-item">Expenses</a></li>
-            <li><a href="#" data-tab="sales" class="nav-item">Sales</a></li>
-            <li><a href="#" data-tab="reports" class="nav-item">Reports</a></li>
-            <li><a href="#" data-tab="reminders" class="nav-item">Reminders</a></li>
-          </ul>
-        </nav>
-      </aside>
-      <main class="main-content">
-        <header class="app-header">
-          <h1>MyBizTracker - Business Management</h1>
-        </header>
-        <div class="tab-content">
-          <div class="dashboard-grid">
-            <div class="card stat-card">
-              <h3>Total Revenue</h3>
-              <p class="stat-value">$${metrics.revenue.toFixed(2)}</p>
-            </div>
-            <div class="card stat-card">
-              <h3>Total Expenses</h3>
-              <p class="stat-value">$${metrics.expenses.toFixed(2)}</p>
-            </div>
-            <div class="card stat-card">
-              <h3>Net Profit</h3>
-              <p class="stat-value">$${metrics.profit.toFixed(2)}</p>
-            </div>
-            <div class="card stat-card">
-              <h3>Total Items</h3>
-              <p class="stat-value">${metrics.items}</p>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  `;
-}
-
-function attachEventListeners() {
-  const navItems = document.querySelectorAll('[data-tab]');
-  navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
+// Tab Navigation
+function setupEventListeners() {
+  // Tab navigation
+  document.querySelectorAll('[data-tab]').forEach(el => {
+    el.addEventListener('click', (e) => {
       e.preventDefault();
-      // Tab switching logic would go here
+      switchTab(el.dataset.tab);
     });
+  });
+
+  // Inventory
+  document.getElementById('addItemBtn').onclick = () => document.getElementById('addItemModal').classList.add('active');
+  document.getElementById('closeAddItem').onclick = () => document.getElementById('addItemModal').classList.remove('active');
+  document.getElementById('addItemForm').onsubmit = handleAddItem;
+
+  // Expenses
+  document.getElementById('addExpenseBtn').onclick = () => document.getElementById('addExpenseModal').classList.add('active');
+  document.getElementById('closeAddExpense').onclick = () => document.getElementById('addExpenseModal').classList.remove('active');
+  document.getElementById('addExpenseForm').onsubmit = handleAddExpense;
+
+  // Sales
+  document.getElementById('addSaleBtn').onclick = () => document.getElementById('addSaleModal').classList.add('active');
+  document.getElementById('closeAddSale').onclick = () => document.getElementById('addSaleModal').classList.remove('active');
+  document.getElementById('addSaleForm').onsubmit = handleAddSale;
+
+  // Modal close on outside click
+  window.onclick = (e) => {
+    if (e.target.classList.contains('modal')) {
+      e.target.classList.remove('active');
+    }
+  };
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('[data-tab]').forEach(el => el.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+  if (tab === 'dashboard') refreshDashboard();
+  else if (tab === 'inventory') updateInventoryTable();
+  else if (tab === 'expenses') updateExpensesTable();
+  else if (tab === 'sales') updateSalesTable();
+  else if (tab === 'reports') updateReports();
+  else if (tab === 'reminders') updateReminders();
+}
+
+// Dashboard
+function refreshDashboard() {
+  const revenue = storage.getTotalRevenue();
+  const expenses = storage.getTotalExpenses();
+  const profit = storage.getNetProfit();
+  const items = storage.getInventoryItems().length;
+
+  document.getElementById('totalRevenue').textContent = '$' + revenue.toFixed(2);
+  document.getElementById('totalExpenses').textContent = '$' + expenses.toFixed(2);
+  document.getElementById('netProfit').textContent = '$' + profit.toFixed(2);
+  document.getElementById('totalItems').textContent = items;
+
+  updateRecentTransactions();
+}
+
+function updateRecentTransactions() {
+  const transactions = storage.getRecentTransactions(10);
+  const container = document.getElementById('recentTransactions');
+  container.innerHTML = '';
+
+  if (transactions.length === 0) {
+    container.innerHTML = '<p>No transactions yet. Start adding data!</p>';
+    return;
+  }
+
+  transactions.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'transaction-item';
+    const date = new Date(t.date).toLocaleDateString();
+    const type = t.customer ? 'Sale' : 'Expense';
+    div.innerHTML = `<strong>${type}</strong> - $${t.amount.toFixed(2)} (${date})`;
+    container.appendChild(div);
   });
 }
 
-// Run app when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
+// Inventory Management
+function handleAddItem(e) {
+  e.preventDefault();
+  const item = {
+    name: document.getElementById('itemName').value,
+    sku: document.getElementById('itemSKU').value,
+    stock: parseInt(document.getElementById('itemStock').value),
+    minStock: parseInt(document.getElementById('itemMinStock').value),
+    price: parseFloat(document.getElementById('itemPrice').value)
+  };
+
+  storage.addInventoryItem(item);
+  showToast('Item added successfully!');
+  e.target.reset();
+  document.getElementById('addItemModal').classList.remove('active');
+  updateInventoryTable();
+}
+
+function updateInventoryTable() {
+  const items = storage.getInventoryItems();
+  const tbody = document.getElementById('inventoryTable');
+  tbody.innerHTML = '';
+
+  items.forEach(item => {
+    const row = tbody.insertRow();
+    const isLow = item.stock <= item.minStock;
+    row.innerHTML = `
+      <td>${item.name}</td>
+      <td>${item.sku}</td>
+      <td style="${isLow ? 'color:red;font-weight:bold' : ''}">${item.stock}</td>
+      <td>${item.minStock}</td>
+      <td>$${item.price.toFixed(2)}</td>
+      <td><button class="btn btn-danger" onclick="deleteItem('${item.id}')">Delete</button></td>
+    `;
+  });
+}
+
+function deleteItem(id) {
+  if (confirm('Delete this item?')) {
+    storage.deleteInventoryItem(id);
+    showToast('Item deleted');
+    updateInventoryTable();
+  }
+}
+
+// Expenses
+function handleAddExpense(e) {
+  e.preventDefault();
+  const expense = {
+    description: document.getElementById('expenseDesc').value,
+    type: document.getElementById('expenseType').value,
+    category: document.getElementById('expenseCategory').value,
+    amount: parseFloat(document.getElementById('expenseAmount').value)
+  };
+
+  storage.addExpense(expense);
+  showToast('Expense logged!');
+  e.target.reset();
+  document.getElementById('addExpenseModal').classList.remove('active');
+  updateExpensesTable();
+  refreshDashboard();
+}
+
+function updateExpensesTable() {
+  const expenses = storage.getExpenses();
+  const tbody = document.getElementById('expensesTable');
+  tbody.innerHTML = '';
+
+  expenses.forEach(exp => {
+    const row = tbody.insertRow();
+    const date = new Date(exp.date).toLocaleDateString();
+    row.innerHTML = `
+      <td>${date}</td>
+      <td>${exp.description}</td>
+      <td>${exp.category}</td>
+      <td>$${exp.amount.toFixed(2)}</td>
+      <td><span style="padding:4px 8px;border-radius:4px;${exp.type === 'expense' ? 'background:#fee2e2' : 'background:#d1fae5'}">${exp.type}</span></td>
+      <td><button class="btn btn-danger" onclick="deleteExpense('${exp.id}')">Delete</button></td>
+    `;
+  });
+}
+
+function deleteExpense(id) {
+  if (confirm('Delete this expense?')) {
+    storage.deleteExpense(id);
+    showToast('Expense deleted');
+    updateExpensesTable();
+    refreshDashboard();
+  }
+}
+
+// Sales
+function handleAddSale(e) {
+  e.preventDefault();
+  const sale = {
+    customer: document.getElementById('customerName').value || 'Walk-in',
+    amount: parseFloat(document.getElementById('saleAmount').value),
+    paymentMethod: document.getElementById('paymentMethod').value,
+    items: document.getElementById('saleItems').value
+  };
+
+  storage.addSale(sale);
+  showToast('Sale recorded!');
+  e.target.reset();
+  document.getElementById('addSaleModal').classList.remove('active');
+  updateSalesTable();
+  refreshDashboard();
+}
+
+function updateSalesTable() {
+  const sales = storage.getSales();
+  const tbody = document.getElementById('salesTable');
+  tbody.innerHTML = '';
+
+  sales.forEach(sale => {
+    const row = tbody.insertRow();
+    const date = new Date(sale.date).toLocaleDateString();
+    row.innerHTML = `
+      <td>${date}</td>
+      <td>${sale.customer}</td>
+      <td>$${sale.amount.toFixed(2)}</td>
+      <td>${sale.paymentMethod}</td>
+      <td>${sale.items || '-'}</td>
+      <td><button class="btn btn-danger" onclick="deleteSale('${sale.id}')">Delete</button></td>
+    `;
+  });
+}
+
+function deleteSale(id) {
+  if (confirm('Delete this sale?')) {
+    storage.deleteSale(id);
+    showToast('Sale deleted');
+    updateSalesTable();
+    refreshDashboard();
+  }
+}
+
+// Reports
+function updateReports() {
+  const period = document.getElementById('reportPeriod').value;
+  document.getElementById('topProducts').innerHTML = '<p>Profit trends and top products will display here.</p>';
+}
+
+// Reminders
+function updateReminders() {
+  const lowStockItems = storage.getLowStockItems();
+  const lowDiv = document.getElementById('lowStockReminders');
+  lowDiv.innerHTML = '';
+
+  if (lowStockItems.length === 0) {
+    lowDiv.innerHTML = '<p>No low stock items. Good inventory levels!</p>';
+  } else {
+    lowStockItems.forEach(item => {
+      const div = document.createElement('div');
+      div.style.padding = '10px';
+      div.style.margin = '5px 0';
+      div.style.background = '#fee2e2';
+      div.style.borderLeft = '4px solid #ef4444';
+      div.innerHTML = `<strong>${item.name}</strong><br>Stock: ${item.stock} (Min: ${item.minStock})`;
+      lowDiv.appendChild(div);
+    });
+  }
+
+  const expenses = storage.getExpenses();
+  const insights = document.getElementById('spendingInsights');
+  if (expenses.length === 0) {
+    insights.innerHTML = '<p>No spending data yet. Add expenses to see insights.</p>';
+  } else {
+    const totalExpense = expenses.reduce((s, e) => s + (e.type === 'expense' ? e.amount : 0), 0);
+    const div = document.createElement('div');
+    div.style.padding = '10px';
+    div.innerHTML = `<strong>Total Spending:</strong> $${totalExpense.toFixed(2)}<br><strong>Entries:</strong> ${expenses.length}`;
+    insights.appendChild(div);
+  }
+}
+
+// Toast notification
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
