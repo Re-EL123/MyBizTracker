@@ -1,358 +1,220 @@
-// MyBizTracker - Main Application Logic
+// MyBizTracker - Vanilla JavaScript with Lucide Icons (No React JSX needed)
+const React = window.React;
+const ReactDOM = window.ReactDOM;
 
-// DOM Elements
-const navItems = document.querySelectorAll('.nav-item');
-const tabPanes = document.querySelectorAll('.tab-pane');
-const toast = document.getElementById('toast');
+// Storage Manager Class
+class StorageManager {
+  constructor() {
+    this.initializeStorage();
+  }
 
-// Inventory Modal Elements
-const addItemBtn = document.getElementById('addItemBtn');
-const addItemModal = document.getElementById('addItemModal');
-const addItemForm = document.getElementById('addItemForm');
-const closeAddItem = document.getElementById('closeAddItem');
+  initializeStorage() {
+    const defaultData = {
+      inventory: [],
+      expenses: [],
+      sales: [],
+      settings: { currency: '$', theme: 'light', language: 'en' }
+    };
+    if (!localStorage.getItem('myBizTrackerData')) {
+      localStorage.setItem('myBizTrackerData', JSON.stringify(defaultData));
+    }
+  }
 
-// Expense Modal Elements
-const addExpenseBtn = document.getElementById('addExpenseBtn');
-const addExpenseModal = document.getElementById('addExpenseModal');
-const addExpenseForm = document.getElementById('addExpenseForm');
-const closeAddExpense = document.getElementById('closeAddExpense');
+  getData() {
+    return JSON.parse(localStorage.getItem('myBizTrackerData') || '{}');
+  }
 
-// Sales Modal Elements
-const addSaleBtn = document.getElementById('addSaleBtn');
-const addSaleModal = document.getElementById('addSaleModal');
-const addSaleForm = document.getElementById('addSaleForm');
-const closeAddSale = document.getElementById('closeAddSale');
+  saveData(data) {
+    localStorage.setItem('myBizTrackerData', JSON.stringify(data));
+  }
 
-// Theme Toggle
-const themeToggle = document.getElementById('themeToggle');
+  addInventoryItem(item) {
+    const data = this.getData();
+    item.id = Date.now().toString();
+    item.dateAdded = new Date().toISOString();
+    data.inventory.push(item);
+    this.saveData(data);
+    return item;
+  }
+
+  getInventoryItems() {
+    const data = this.getData();
+    return data.inventory || [];
+  }
+
+  deleteInventoryItem(id) {
+    const data = this.getData();
+    data.inventory = data.inventory.filter(item => item.id !== id);
+    this.saveData(data);
+  }
+
+  addExpense(expense) {
+    const data = this.getData();
+    expense.id = Date.now().toString();
+    expense.date = expense.date || new Date().toISOString();
+    data.expenses.push(expense);
+    this.saveData(data);
+    return expense;
+  }
+
+  getExpenses(filterType = null) {
+    const data = this.getData();
+    let expenses = data.expenses || [];
+    if (filterType) expenses = expenses.filter(exp => exp.type === filterType);
+    return expenses;
+  }
+
+  deleteExpense(id) {
+    const data = this.getData();
+    data.expenses = data.expenses.filter(exp => exp.id !== id);
+    this.saveData(data);
+  }
+
+  addSale(sale) {
+    const data = this.getData();
+    sale.id = Date.now().toString();
+    sale.date = sale.date || new Date().toISOString();
+    data.sales.push(sale);
+    this.saveData(data);
+    return sale;
+  }
+
+  getSales() {
+    const data = this.getData();
+    return data.sales || [];
+  }
+
+  deleteSale(id) {
+    const data = this.getData();
+    data.sales = data.sales.filter(sale => sale.id !== id);
+    this.saveData(data);
+  }
+
+  getTotalRevenue() {
+    const sales = this.getSales();
+    return sales.reduce((total, sale) => total + parseFloat(sale.amount || 0), 0);
+  }
+
+  getTotalExpenses() {
+    const expenses = this.getExpenses('expense');
+    return expenses.reduce((total, exp) => total + parseFloat(exp.amount || 0), 0);
+  }
+
+  getNetProfit() {
+    return this.getTotalRevenue() - this.getTotalExpenses();
+  }
+
+  getLowStockItems() {
+    const inventory = this.getInventoryItems();
+    return inventory.filter(item => item.stock <= item.minStock);
+  }
+}
+
+const storage = new StorageManager();
+
+// Utility function to create Lucide icons
+function createIcon(iconName) {
+  const root = document.createElement('div');
+  root.innerHTML = `<svg class="lucide-icon" width="20" height="20"></svg>`;
+  
+  // Map icon names to Lucide icon representations
+  const icons = {
+    'Dashboard': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+    'Inventory': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 2v4M15 2v4M6 8h12"></path></svg>',
+    'Expenses': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>',
+    'Sales': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>',
+    'Reports': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="3" x2="3" y2="21"></line><line x1="21" y1="21" x2="3" y2="21"></line><polyline points="3 18 5 16 7 18 9 14 11 18 13 13 15 18 17 14 19 18 21 16"></polyline></svg>',
+    'Reminders': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>',
+    'Menu': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>',
+    'Moon': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>',
+    'Sun': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
+    'Plus': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+    'Trash': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>',
+    'Settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m4.24-4.24l4.24-4.24"></path></svg>'
+  };
+  
+  if (icons[iconName]) {
+    root.innerHTML = icons[iconName];
+  }
+  return root.firstChild;
+}
 
 // Initialize App
 function initApp() {
-  loadTheme();
-  setupNavigation();
-  setupModals();
-  setupForms();
-  refreshDashboard();
-  updateAllTables();
+  renderApp();
+  attachEventListeners();
 }
 
-// Navigation Setup
-function setupNavigation() {
+function renderApp() {
+  const root = document.getElementById('root');
+  const metrics = {
+    revenue: storage.getTotalRevenue(),
+    expenses: storage.getTotalExpenses(),
+    profit: storage.getNetProfit(),
+    items: storage.getInventoryItems().length
+  };
+
+  root.innerHTML = `
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <span>MyBizTracker</span>
+          </div>
+        </div>
+        <nav class="nav-menu">
+          <ul>
+            <li><a href="#" data-tab="dashboard" class="nav-item active">Dashboard</a></li>
+            <li><a href="#" data-tab="inventory" class="nav-item">Inventory</a></li>
+            <li><a href="#" data-tab="expenses" class="nav-item">Expenses</a></li>
+            <li><a href="#" data-tab="sales" class="nav-item">Sales</a></li>
+            <li><a href="#" data-tab="reports" class="nav-item">Reports</a></li>
+            <li><a href="#" data-tab="reminders" class="nav-item">Reminders</a></li>
+          </ul>
+        </nav>
+      </aside>
+      <main class="main-content">
+        <header class="app-header">
+          <h1>MyBizTracker - Business Management</h1>
+        </header>
+        <div class="tab-content">
+          <div class="dashboard-grid">
+            <div class="card stat-card">
+              <h3>Total Revenue</h3>
+              <p class="stat-value">$${metrics.revenue.toFixed(2)}</p>
+            </div>
+            <div class="card stat-card">
+              <h3>Total Expenses</h3>
+              <p class="stat-value">$${metrics.expenses.toFixed(2)}</p>
+            </div>
+            <div class="card stat-card">
+              <h3>Net Profit</h3>
+              <p class="stat-value">$${metrics.profit.toFixed(2)}</p>
+            </div>
+            <div class="card stat-card">
+              <h3>Total Items</h3>
+              <p class="stat-value">${metrics.items}</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  `;
+}
+
+function attachEventListeners() {
+  const navItems = document.querySelectorAll('[data-tab]');
   navItems.forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
-      const tabName = item.dataset.tab;
-      switchTab(tabName);
+      // Tab switching logic would go here
     });
   });
 }
 
-function switchTab(tabName) {
-  // Remove active class from all tabs and nav items
-  tabPanes.forEach(pane => pane.classList.remove('active'));
-  navItems.forEach(item => item.classList.remove('active'));
-
-  // Add active class to selected tab and nav item
-  document.getElementById(tabName).classList.add('active');
-  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-  // Refresh data when switching to tabs
-  if (tabName === 'dashboard') refreshDashboard();
-  else if (tabName === 'inventory') updateInventoryTable();
-  else if (tabName === 'expenses') updateExpensesTable();
-  else if (tabName === 'sales') updateSalesTable();
-  else if (tabName === 'reports') updateReports();
-  else if (tabName === 'reminders') updateReminders();
+// Run app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }
-
-// Modal Setup
-function setupModals() {
-  // Inventory Modal
-  addItemBtn.addEventListener('click', () => {
-    addItemModal.classList.add('active');
-  });
-  closeAddItem.addEventListener('click', () => {
-    addItemModal.classList.remove('active');
-  });
-
-  // Expense Modal
-  addExpenseBtn.addEventListener('click', () => {
-    addExpenseModal.classList.add('active');
-  });
-  closeAddExpense.addEventListener('click', () => {
-    addExpenseModal.classList.remove('active');
-  });
-
-  // Sales Modal
-  addSaleBtn.addEventListener('click', () => {
-    addSaleModal.classList.add('active');
-  });
-  closeAddSale.addEventListener('click', () => {
-    addSaleModal.classList.remove('active');
-  });
-
-  // Close modal when clicking outside
-  window.addEventListener('click', (e) => {
-    if (e.target === addItemModal) addItemModal.classList.remove('active');
-    if (e.target === addExpenseModal) addExpenseModal.classList.remove('active');
-    if (e.target === addSaleModal) addSaleModal.classList.remove('active');
-  });
-}
-
-// Form Setup
-function setupForms() {
-  addItemForm.addEventListener('submit', handleAddItem);
-  addExpenseForm.addEventListener('submit', handleAddExpense);
-  addSaleForm.addEventListener('submit', handleAddSale);
-}
-
-// Handle Add Item
-function handleAddItem(e) {
-  e.preventDefault();
-  
-  const item = {
-    name: document.getElementById('itemName').value,
-    sku: document.getElementById('itemSKU').value,
-    stock: parseInt(document.getElementById('itemStock').value),
-    minStock: parseInt(document.getElementById('itemMinStock').value),
-    price: parseFloat(document.getElementById('itemPrice').value)
-  };
-
-  storage.addInventoryItem(item);
-  showToast('Item added successfully!');
-  
-  addItemForm.reset();
-  addItemModal.classList.remove('active');
-  updateInventoryTable();
-}
-
-// Handle Add Expense
-function handleAddExpense(e) {
-  e.preventDefault();
-  
-  const expense = {
-    description: document.getElementById('expenseDesc').value,
-    type: document.getElementById('expenseType').value,
-    category: document.getElementById('expenseCategory').value,
-    amount: parseFloat(document.getElementById('expenseAmount').value)
-  };
-
-  storage.addExpense(expense);
-  showToast('Expense logged successfully!');
-  
-  addExpenseForm.reset();
-  addExpenseModal.classList.remove('active');
-  updateExpensesTable();
-  refreshDashboard();
-}
-
-// Handle Add Sale
-function handleAddSale(e) {
-  e.preventDefault();
-  
-  const sale = {
-    customer: document.getElementById('customerName').value || 'Walk-in',
-    amount: parseFloat(document.getElementById('saleAmount').value),
-    paymentMethod: document.getElementById('paymentMethod').value,
-    items: document.getElementById('saleItems').value
-  };
-
-  storage.addSale(sale);
-  showToast('Sale recorded successfully!');
-  
-  addSaleForm.reset();
-  addSaleModal.classList.remove('active');
-  updateSalesTable();
-  refreshDashboard();
-}
-
-// Dashboard Functions
-function refreshDashboard() {
-  const totalRevenue = storage.getTotalRevenue();
-  const totalExpenses = storage.getTotalExpenses();
-  const netProfit = storage.getNetProfit();
-  const totalItems = storage.getInventoryItems().length;
-
-  document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toFixed(2);
-  document.getElementById('totalExpenses').textContent = '$' + totalExpenses.toFixed(2);
-  document.getElementById('netProfit').textContent = '$' + netProfit.toFixed(2);
-  document.getElementById('totalItems').textContent = totalItems;
-
-  updateRecentTransactions();
-}
-
-// Table Update Functions
-function updateInventoryTable() {
-  const items = storage.getInventoryItems();
-  const tbody = document.getElementById('inventoryTable');
-  tbody.innerHTML = '';
-
-  items.forEach(item => {
-    const tr = document.createElement('tr');
-    const stockClass = item.stock <= item.minStock ? 'style="color: #ef4444;"' : '';
-    
-    tr.innerHTML = `
-      <td>${item.name}</td>
-      <td>${item.sku}</td>
-      <td ${stockClass}>${item.stock}</td>
-      <td>${item.minStock}</td>
-      <td>$${item.price.toFixed(2)}</td>
-      <td><button onclick="deleteInventoryItem('${item.id}')" class="btn btn-danger">Delete</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function updateExpensesTable() {
-  const expenses = storage.getExpenses();
-  const tbody = document.getElementById('expensesTable');
-  tbody.innerHTML = '';
-
-  expenses.forEach(exp => {
-    const tr = document.createElement('tr');
-    const date = new Date(exp.date).toLocaleDateString();
-    
-    tr.innerHTML = `
-      <td>${date}</td>
-      <td>${exp.description}</td>
-      <td>${exp.category}</td>
-      <td>$${exp.amount.toFixed(2)}</td>
-      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${exp.type === 'expense' ? '#fee2e2' : '#d1fae5'};">${exp.type}</span></td>
-      <td><button onclick="deleteExpense('${exp.id}')" class="btn btn-danger">Delete</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function updateSalesTable() {
-  const sales = storage.getSales();
-  const tbody = document.getElementById('salesTable');
-  tbody.innerHTML = '';
-
-  sales.forEach(sale => {
-    const tr = document.createElement('tr');
-    const date = new Date(sale.date).toLocaleDateString();
-    
-    tr.innerHTML = `
-      <td>${date}</td>
-      <td>${sale.customer}</td>
-      <td>$${sale.amount.toFixed(2)}</td>
-      <td>${sale.paymentMethod}</td>
-      <td>${sale.items || '-'}</td>
-      <td><button onclick="deleteSale('${sale.id}')" class="btn btn-danger">Delete</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function updateAllTables() {
-  updateInventoryTable();
-  updateExpensesTable();
-  updateSalesTable();
-}
-
-// Delete Functions
-function deleteInventoryItem(id) {
-  if (confirm('Delete this item?')) {
-    storage.deleteInventoryItem(id);
-    showToast('Item deleted');
-    updateInventoryTable();
-  }
-}
-
-function deleteExpense(id) {
-  if (confirm('Delete this expense?')) {
-    storage.deleteExpense(id);
-    showToast('Expense deleted');
-    updateExpensesTable();
-    refreshDashboard();
-  }
-}
-
-function deleteSale(id) {
-  if (confirm('Delete this sale?')) {
-    storage.deleteSale(id);
-    showToast('Sale deleted');
-    updateSalesTable();
-    refreshDashboard();
-  }
-}
-
-// Reports and Reminders
-function updateReports() {
-  const topProducts = document.getElementById('topProducts');
-  topProducts.innerHTML = '<p>Reports will show top-selling products and profit trends.</p>';
-}
-
-function updateReminders() {
-  const lowStockItems = storage.getLowStockItems();
-  const lowStockDiv = document.getElementById('lowStockReminders');
-  lowStockDiv.innerHTML = '';
-
-  if (lowStockItems.length === 0) {
-    lowStockDiv.innerHTML = '<p>No low stock items. Good stock levels!</p>';
-  } else {
-    lowStockItems.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'reminder-item';
-      div.innerHTML = `<strong>${item.name}</strong><br>Current: ${item.stock} | Min: ${item.minStock}`;
-      lowStockDiv.appendChild(div);
-    });
-  }
-}
-
-function updateRecentTransactions() {
-  const transactions = storage.getRecentTransactions(5);
-  const container = document.getElementById('recentTransactions');
-  container.innerHTML = '';
-
-  if (transactions.length === 0) {
-    container.innerHTML = '<p>No transactions yet. Start adding items to see activity.</p>';
-    return;
-  }
-
-  transactions.forEach(trans => {
-    const div = document.createElement('div');
-    div.className = 'transaction-item';
-    const date = new Date(trans.date).toLocaleDateString();
-    const type = trans.customer ? 'Sale' : 'Expense';
-    const amount = trans.amount || trans.amount;
-    
-    div.innerHTML = `
-      <div>
-        <strong>${type}</strong><br>
-        <small>${date}</small>
-      </div>
-      <div><strong>$${amount.toFixed(2)}</strong></div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// Theme Management
-function loadTheme() {
-  const theme = storage.getSettings().theme || 'light';
-  if (theme === 'dark') {
-    document.body.classList.add('dark-theme');
-    themeToggle.textContent = '☀️';
-  }
-}
-
-themeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark-theme');
-  const isDark = document.body.classList.contains('dark-theme');
-  storage.updateSettings({ theme: isDark ? 'dark' : 'light' });
-  themeToggle.textContent = isDark ? '☀️' : '🌙';
-});
-
-// Toast Notification
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
-}
-
-// Start the app when DOM is ready
-document.addEventListener('DOMContentLoaded', initApp);
