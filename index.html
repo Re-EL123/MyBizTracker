@@ -4,15 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyBizTracker - Business Management App</title>
-    <!-- React CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="root"></div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>MyBizTracker</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#" data-tab="dashboard" class="nav-item active">Dashboard</a></li>
+                    <li><a href="#" data-tab="inventory" class="nav-item">Inventory</a></li>
+                    <li><a href="#" data-tab="expenses" class="nav-item">Expenses</a></li>
+                    <li><a href="#" data-tab="sales" class="nav-item">Sales</a></li>
+                    <li><a href="#" data-tab="reports" class="nav-item">Reports</a></li>
+                    <li><a href="#" data-tab="reminders" class="nav-item">Reminders</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <h1>MyBizTracker</h1>
+            </header>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-pane active">
+                    <div class="dashboard-grid">
+                        <div class="card stat-card">
+                            <h3>Total Revenue</h3>
+                            <p class="stat-value" id="totalRevenue">$0.00</p>
+                        </div>
+                        <div class="card stat-card">
+                            <h3>Total Expenses</h3>
+                            <p class="stat-value" id="totalExpenses">$0.00</p>
+                        </div>
+                        <div class="card stat-card">
+                            <h3>Net Profit</h3>
+                            <p class="stat-value" id="netProfit">$0.00</p>
+                        </div>
+                        <div class="card stat-card">
+                            <h3>Total Items</h3>
+                            <p class="stat-value" id="totalItems">0</p>
+                        </div>
+                    </div>
+                    <div class="recent-section">
+                        <h2>Recent Transactions</h2>
+                        <div id="recentTransactions" class="transactions-list"></div>
+                    </div>
+                </div>
+
+                <!-- Inventory Tab -->
+                <div id="inventory" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Inventory Management</h2>
+                        <button class="btn btn-primary" id="addItemBtn">+ Add Item</button>
+                    </div>
+                    <table class="inventory-table">
+                        <thead>
+                            <tr><th>Item Name</th><th>SKU</th><th>Stock</th><th>Min</th><th>Price</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="inventoryTable"></tbody>
+                    </table>
+                    <div id="addItemModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="closeAddItem">&times;</span>
+                            <h2>Add Item</h2>
+                            <form id="addItemForm">
+                                <input type="text" id="itemName" placeholder="Item Name" required>
+                                <input type="text" id="itemSKU" placeholder="SKU" required>
+                                <input type="number" id="itemStock" placeholder="Stock" required>
+                                <input type="number" id="itemMinStock" placeholder="Min Stock" required>
+                                <input type="number" id="itemPrice" placeholder="Price" step="0.01" required>
+                                <button type="submit" class="btn btn-primary">Add Item</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses Tab -->
+                <div id="expenses" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Expense & Income Tracking</h2>
+                        <button class="btn btn-primary" id="addExpenseBtn">+ Add Expense</button>
+                    </div>
+                    <table class="expenses-table">
+                        <thead>
+                            <tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Type</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="expensesTable"></tbody>
+                    </table>
+                    <div id="addExpenseModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="closeAddExpense">&times;</span>
+                            <h2>Add Expense/Income</h2>
+                            <form id="addExpenseForm">
+                                <input type="text" id="expenseDesc" placeholder="Description" required>
+                                <select id="expenseType" required>
+                                    <option value="expense">Expense</option>
+                                    <option value="income">Income</option>
+                                </select>
+                                <select id="expenseCategory" required>
+                                    <option value="rent">Rent</option>
+                                    <option value="supplies">Supplies</option>
+                                    <option value="wages">Wages</option>
+                                    <option value="utilities">Utilities</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <input type="number" id="expenseAmount" placeholder="Amount" step="0.01" required>
+                                <button type="submit" class="btn btn-primary">Add Entry</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Tab -->
+                <div id="sales" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Sales Recording</h2>
+                        <button class="btn btn-primary" id="addSaleBtn">+ Record Sale</button>
+                    </div>
+                    <table class="sales-table">
+                        <thead>
+                            <tr><th>Date</th><th>Customer</th><th>Amount</th><th>Payment</th><th>Items</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="salesTable"></tbody>
+                    </table>
+                    <div id="addSaleModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="closeAddSale">&times;</span>
+                            <h2>Record Sale</h2>
+                            <form id="addSaleForm">
+                                <input type="text" id="customerName" placeholder="Customer Name">
+                                <select id="paymentMethod" required>
+                                    <option value="cash">Cash</option>
+                                    <option value="ewallet">eWallet</option>
+                                    <option value="credit">Credit</option>
+                                </select>
+                                <input type="number" id="saleAmount" placeholder="Amount" step="0.01" required>
+                                <input type="text" id="saleItems" placeholder="Items Sold">
+                                <button type="submit" class="btn btn-primary">Record Sale</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div id="reports" class="tab-pane">
+                    <h2>Reports & Insights</h2>
+                    <div class="report-filters">
+                        <select id="reportPeriod">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Profit Trend</h3>
+                            <canvas id="profitChart"></canvas>
+                        </div>
+                        <div class="card">
+                            <h3>Top Products</h3>
+                            <div id="topProducts" class="report-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reminders Tab -->
+                <div id="reminders" class="tab-pane">
+                    <h2>Reminders & Notifications</h2>
+                    <div class="reminders-grid">
+                        <div class="card reminder-card">
+                            <h3>Low Stock Items</h3>
+                            <div id="lowStockReminders" class="reminder-list"></div>
+                        </div>
+                        <div class="card reminder-card">
+                            <h3>Spending Insights</h3>
+                            <div id="spendingInsights" class="reminder-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="storage.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
