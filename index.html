@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyBizTracker - Business Management App</title>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,25 +13,23 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
-                    </svg>
+                    <i data-lucide="briefcase-business" style="width: 32px; height: 32px;"></i>
                     <span>MyBizTracker</span>
                 </div>
             </div>
             <nav class="nav-menu">
                 <ul>
-                    <li><a href="#" data-tab="dashboard" class="nav-item active"><span class="icon">-</span> Dashboard</a></li>
-                    <li><a href="#" data-tab="inventory" class="nav-item"><span class="icon">-</span> Inventory</a></li>
-                    <li><a href="#" data-tab="expenses" class="nav-item"><span class="icon">-</span> Expenses</a></li>
-                    <li><a href="#" data-tab="sales" class="nav-item"><span class="icon">-</span> Sales</a></li>
-                    <li><a href="#" data-tab="reports" class="nav-item"><span class="icon">-</span> Reports</a></li>
-                    <li><a href="#" data-tab="reminders" class="nav-item"><span class="icon">-</span> Reminders</a></li>
+                    <li><a href="#" data-tab="dashboard" class="nav-item active"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                    <li><a href="#" data-tab="inventory" class="nav-item"><i data-lucide="package"></i> Inventory</a></li>
+                    <li><a href="#" data-tab="expenses" class="nav-item"><i data-lucide="wallet"></i> Expenses</a></li>
+                    <li><a href="#" data-tab="sales" class="nav-item"><i data-lucide="shopping-cart"></i> Sales</a></li>
+                    <li><a href="#" data-tab="reports" class="nav-item"><i data-lucide="bar-chart-3"></i> Reports</a></li>
+                    <li><a href="#" data-tab="reminders" class="nav-item"><i data-lucide="bell"></i> Reminders</a></li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <button id="themeToggle" class="theme-toggle">Dark</button>
-                <button id="settingsBtn" class="settings-btn">Settings</button>
+                <button id="themeToggle" class="theme-toggle"><i data-lucide="moon"></i> Dark</button>
+                <button id="settingsBtn" class="settings-btn"><i data-lucide="settings"></i> Settings</button>
             </div>
         </aside>
 
@@ -40,11 +38,12 @@
             <!-- Header -->
             <header class="app-header">
                 <div class="header-left">
-                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <button class="menu-toggle" id="menuToggle"><i data-lucide="menu"></i></button>
                     <h1>MyBizTracker</h1>
                 </div>
                 <div class="header-right">
                     <div class="search-bar">
+                        <i data-lucide="search"></i>
                         <input type="text" placeholder="Search..." id="searchInput">
                     </div>
                 </div>
@@ -58,7 +57,7 @@
                         <div class="card stat-card">
                             <div class="stat-header">
                                 <h3>Total Revenue</h3>
-                                <span class="icon-small">-</span>
+                                <i data-lucide="trending-up" class="icon-small"></i>
                             </div>
                             <p class="stat-value" id="totalRevenue">$0</p>
                             <p class="stat-change positive">+0% from last month</p>
@@ -66,7 +65,7 @@
                         <div class="card stat-card">
                             <div class="stat-header">
                                 <h3>Total Expenses</h3>
-                                <span class="icon-small">-</span>
+                                <i data-lucide="trending-down" class="icon-small"></i>
                             </div>
                             <p class="stat-value" id="totalExpenses">$0</p>
                             <p class="stat-change positive">+0% from last month</p>
@@ -74,7 +73,7 @@
                         <div class="card stat-card">
                             <div class="stat-header">
                                 <h3>Net Profit</h3>
-                                <span class="icon-small">-</span>
+                                <i data-lucide="dollar-sign" class="icon-small"></i>
                             </div>
                             <p class="stat-value" id="netProfit">$0</p>
                             <p class="stat-change positive">+0% from last month</p>
@@ -82,14 +81,14 @@
                         <div class="card stat-card">
                             <div class="stat-header">
                                 <h3>Total Items</h3>
-                                <span class="icon-small">-</span>
+                                <i data-lucide="box" class="icon-small"></i>
                             </div>
                             <p class="stat-value" id="totalItems">0</p>
                             <p class="stat-subtext">In Inventory</p>
                         </div>
                     </div>
                     <div class="recent-section">
-                        <h2>Recent Transactions</h2>
+                        <h2><i data-lucide="clock"></i> Recent Transactions</h2>
                         <div id="recentTransactions" class="transactions-list"></div>
                     </div>
                 </div>
@@ -97,8 +96,8 @@
                 <!-- Inventory Tab -->
                 <div id="inventory" class="tab-pane">
                     <div class="section-header">
-                        <h2>Inventory Management</h2>
-                        <button class="btn btn-primary" id="addItemBtn">+ Add Item</button>
+                        <h2><i data-lucide="package"></i> Inventory Management</h2>
+                        <button class="btn btn-primary" id="addItemBtn"><i data-lucide="plus"></i> Add Item</button>
                     </div>
                     <div class="card">
                         <table class="inventory-table">
@@ -119,31 +118,31 @@
                     <div id="addItemModal" class="modal">
                         <div class="modal-content">
                             <span class="close" id="closeAddItem">&times;</span>
-                            <h2>Add New Item</h2>
+                            <h2><i data-lucide="package-plus"></i> Add New Item</h2>
                             <form id="addItemForm">
                                 <div class="form-group">
-                                    <label>Item Name *</label>
+                                    <label><i data-lucide="tag"></i> Item Name *</label>
                                     <input type="text" id="itemName" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>SKU *</label>
+                                    <label><i data-lucide="hash"></i> SKU *</label>
                                     <input type="text" id="itemSKU" required>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Initial Stock *</label>
+                                        <label><i data-lucide="boxes"></i> Initial Stock *</label>
                                         <input type="number" id="itemStock" required min="0">
                                     </div>
                                     <div class="form-group">
-                                        <label>Min Stock Alert *</label>
+                                        <label><i data-lucide="alert-triangle"></i> Min Stock Alert *</label>
                                         <input type="number" id="itemMinStock" required min="0">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Unit Price *</label>
+                                    <label><i data-lucide="dollar-sign"></i> Unit Price *</label>
                                     <input type="number" id="itemPrice" required min="0" step="0.01">
                                 </div>
-                                <button type="submit" class="btn btn-primary">Add Item</button>
+                                <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Add Item</button>
                             </form>
                         </div>
                     </div>
@@ -152,8 +151,8 @@
                 <!-- Expenses Tab -->
                 <div id="expenses" class="tab-pane">
                     <div class="section-header">
-                        <h2>Expense & Income Tracking</h2>
-                        <button class="btn btn-primary" id="addExpenseBtn">+ Add Expense</button>
+                        <h2><i data-lucide="wallet"></i> Expense & Income Tracking</h2>
+                        <button class="btn btn-primary" id="addExpenseBtn"><i data-lucide="plus"></i> Add Expense</button>
                     </div>
                     <div class="card">
                         <table class="expenses-table">
@@ -174,22 +173,22 @@
                     <div id="addExpenseModal" class="modal">
                         <div class="modal-content">
                             <span class="close" id="closeAddExpense">&times;</span>
-                            <h2>Add Expense/Income</h2>
+                            <h2><i data-lucide="file-text"></i> Add Expense/Income</h2>
                             <form id="addExpenseForm">
                                 <div class="form-group">
-                                    <label>Description *</label>
+                                    <label><i data-lucide="align-left"></i> Description *</label>
                                     <input type="text" id="expenseDesc" required>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Type *</label>
+                                        <label><i data-lucide="tag"></i> Type *</label>
                                         <select id="expenseType" required>
                                             <option value="expense">Expense</option>
                                             <option value="income">Income</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Category *</label>
+                                        <label><i data-lucide="folder"></i> Category *</label>
                                         <select id="expenseCategory" required>
                                             <option value="rent">Rent</option>
                                             <option value="supplies">Supplies</option>
@@ -200,10 +199,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Amount *</label>
+                                    <label><i data-lucide="dollar-sign"></i> Amount *</label>
                                     <input type="number" id="expenseAmount" required min="0" step="0.01">
                                 </div>
-                                <button type="submit" class="btn btn-primary">Add Entry</button>
+                                <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Add Entry</button>
                             </form>
                         </div>
                     </div>
@@ -212,8 +211,8 @@
                 <!-- Sales Tab -->
                 <div id="sales" class="tab-pane">
                     <div class="section-header">
-                        <h2>Sales Recording</h2>
-                        <button class="btn btn-primary" id="addSaleBtn">+ Record Sale</button>
+                        <h2><i data-lucide="shopping-cart"></i> Sales Recording</h2>
+                        <button class="btn btn-primary" id="addSaleBtn"><i data-lucide="plus"></i> Record Sale</button>
                     </div>
                     <div class="card">
                         <table class="sales-table">
@@ -234,15 +233,15 @@
                     <div id="addSaleModal" class="modal">
                         <div class="modal-content">
                             <span class="close" id="closeAddSale">&times;</span>
-                            <h2>Record Sale</h2>
+                            <h2><i data-lucide="receipt"></i> Record Sale</h2>
                             <form id="addSaleForm">
                                 <div class="form-group">
-                                    <label>Customer Name</label>
+                                    <label><i data-lucide="user"></i> Customer Name</label>
                                     <input type="text" id="customerName">
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Payment Method *</label>
+                                        <label><i data-lucide="credit-card"></i> Payment Method *</label>
                                         <select id="paymentMethod" required>
                                             <option value="cash">Cash</option>
                                             <option value="ewallet">eWallet</option>
@@ -250,15 +249,15 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Amount *</label>
+                                        <label><i data-lucide="dollar-sign"></i> Amount *</label>
                                         <input type="number" id="saleAmount" required min="0" step="0.01">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Items Sold</label>
+                                    <label><i data-lucide="shopping-bag"></i> Items Sold</label>
                                     <input type="text" id="saleItems" placeholder="e.g., Item 1 x2, Item 2 x1">
                                 </div>
-                                <button type="submit" class="btn btn-primary">Record Sale</button>
+                                <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Record Sale</button>
                             </form>
                         </div>
                     </div>
@@ -267,9 +266,10 @@
                 <!-- Reports Tab -->
                 <div id="reports" class="tab-pane">
                     <div class="section-header">
-                        <h2>Reports & Insights</h2>
+                        <h2><i data-lucide="bar-chart-3"></i> Reports & Insights</h2>
                     </div>
                     <div class="report-filters">
+                        <label><i data-lucide="calendar"></i> Period:</label>
                         <select id="reportPeriod">
                             <option value="daily">Daily</option>
                             <option value="weekly">Weekly</option>
@@ -278,11 +278,11 @@
                     </div>
                     <div class="dashboard-grid">
                         <div class="card">
-                            <h3>Profit Trend</h3>
+                            <h3><i data-lucide="line-chart"></i> Profit Trend</h3>
                             <div id="profitChart" class="chart-placeholder">Chart will be displayed here</div>
                         </div>
                         <div class="card">
-                            <h3>Top Products</h3>
+                            <h3><i data-lucide="trophy"></i> Top Products</h3>
                             <div id="topProducts" class="report-list"></div>
                         </div>
                     </div>
@@ -291,15 +291,15 @@
                 <!-- Reminders Tab -->
                 <div id="reminders" class="tab-pane">
                     <div class="section-header">
-                        <h2>Reminders & Notifications</h2>
+                        <h2><i data-lucide="bell"></i> Reminders & Notifications</h2>
                     </div>
                     <div class="reminders-grid">
                         <div class="card reminder-card">
-                            <h3>Low Stock Items</h3>
+                            <h3><i data-lucide="alert-circle"></i> Low Stock Items</h3>
                             <div id="lowStockReminders" class="reminder-list"></div>
                         </div>
                         <div class="card reminder-card">
-                            <h3>Spending Insights</h3>
+                            <h3><i data-lucide="pie-chart"></i> Spending Insights</h3>
                             <div id="spendingInsights" class="reminder-list"></div>
                         </div>
                     </div>
@@ -313,5 +313,11 @@
 
     <script src="storage.js"></script>
     <script src="app.js"></script>
+    <script>
+        // Initialize Lucide icons after DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
